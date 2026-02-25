@@ -1,11 +1,15 @@
 import Image from "next/image";
+import ProfileWidget from "@/components/ProfileWidget";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <div className="flex min-h-screen flex-col bg-zinc-50 font-sans dark:bg-black">
+      <header className="flex w-full items-center justify-end p-6">
+        <ProfileWidget />
+      </header>
+      <main className="flex w-full max-w-3xl flex-col items-center justify-center self-center py-20 px-16 bg-white dark:bg-black sm:items-start flex-grow">
         <Image
-          className="dark:invert"
+          className="dark:invert mb-10"
           src="/next.svg"
           alt="Next.js logo"
           width={100}
