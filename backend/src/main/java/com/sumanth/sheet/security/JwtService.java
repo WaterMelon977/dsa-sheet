@@ -25,9 +25,10 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(String username, String provider, String avatar, String email) {
+    public String generateToken(Long id, String username, String provider, String avatar, String email) {
         return Jwts.builder()
                 .subject(username)
+                .claim("id", id)
                 .claim("provider", provider != null ? provider : "")
                 .claim("avatar", avatar != null ? avatar : "")
                 .claim("email", email != null ? email : "")

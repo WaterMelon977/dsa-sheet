@@ -42,6 +42,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         String token = jwtService.generateToken(
+                oAuthUser.getId(),
                 oAuthUser.getUsername(),
                 oAuthUser.getProvider(),
                 oAuthUser.getAvatar(),
@@ -79,6 +80,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
             return extracted;
         }
-        return new OAuthUser("Unknown", "", "", "unknown");
+        return new OAuthUser(null, "Unknown", "", "", "unknown");
     }
 }

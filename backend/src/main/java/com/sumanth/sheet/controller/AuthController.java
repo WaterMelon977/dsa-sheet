@@ -24,6 +24,7 @@ public class AuthController {
                 .getDetails();
 
         return ResponseEntity.ok(Map.of(
+                "id", details.get("id"),
                 "username", details.get("username"),
                 "avatar", details.get("avatar"),
                 "provider", details.get("provider"),

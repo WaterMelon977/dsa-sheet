@@ -82,7 +82,8 @@ public class OAuth2UserProcessor {
 
         logger.info("Upserted user: provider={}, providerId={}, username={}", provider, finalProviderId,
                 user.getUsername());
-        return new OAuthUser(user.getUsername(), user.getEmail(), user.getAvatarUrl(), user.getProvider());
+        return new OAuthUser(user.getId(), user.getUsername(), user.getEmail(), user.getAvatarUrl(),
+                user.getProvider());
     }
 
     private String getAttr(Map<String, Object> attrs, String key, String defaultValue) {

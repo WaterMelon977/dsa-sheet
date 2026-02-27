@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.sumanth.sheet.model.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByProviderAndProviderId(String provider, String providerId);
 }

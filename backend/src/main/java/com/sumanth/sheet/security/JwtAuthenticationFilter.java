@@ -35,12 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtService.isTokenValid(token)) {
             Claims claims = jwtService.parseToken(token);
             String username = claims.getSubject();
+            Long id = claims.get("id", Long.class);
             String provider = claims.get("provider", String.class);
             String avatar = claims.get("avatar", String.class);
             String email = claims.get("email", String.class);
 
             Map<String, Object> details = Map.of(
-                    "username", username,
+                    "id", id != null ? id : -1L,
+                    "username", username != null ? username : "",
                     "provider", provider != null ? provider : "",
                     "avatar", avatar != null ? avatar : "",
                     "email", email != null ? email : "");
