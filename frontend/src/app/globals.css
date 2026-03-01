@@ -1,26 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --clay-bg: #141414;
+  --clay-border: rgba(255, 255, 255, 0.05);
+  --clay-shadow-light: rgba(255, 255, 255, 0.03);
+  --clay-shadow-dark: rgba(0, 0, 0, 0.8);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: 'Noto Sans JP', sans-serif;
+  --font-serif: 'Noto Serif JP', serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .clay-card {
+    background-color: var(--clay-bg);
+    border: 1px solid var(--clay-border);
+    box-shadow:
+      10px 10px 20px var(--clay-shadow-dark),
+      -5px -5px 15px var(--clay-shadow-light),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .clay-card:hover {
+    box-shadow:
+      12px 12px 24px var(--clay-shadow-dark),
+      -6px -6px 18px var(--clay-shadow-light),
+      inset 1px 1px 3px rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .clay-btn {
+    background-color: var(--clay-bg);
+    border: 1px solid var(--clay-border);
+    box-shadow:
+      5px 5px 10px var(--clay-shadow-dark),
+      -2px -2px 8px var(--clay-shadow-light),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.05);
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+  }
+
+  .clay-btn:hover {
+    box-shadow:
+      inset 3px 3px 6px var(--clay-shadow-dark),
+      inset -2px -2px 6px var(--clay-shadow-light);
+    transform: translateY(1px);
+  }
+
+  .clay-btn:active {
+    box-shadow:
+      inset 5px 5px 10px var(--clay-shadow-dark),
+      inset -3px -3px 8px var(--clay-shadow-light);
+  }
+
+  .clay-panel {
+    background-color: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--clay-border);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
 }
