@@ -1,4 +1,9 @@
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: native
+
 spring:
+
   application:
     name: sheet
   datasource:
@@ -12,7 +17,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     defer-datasource-initialization: true
     properties:
       hibernate:
