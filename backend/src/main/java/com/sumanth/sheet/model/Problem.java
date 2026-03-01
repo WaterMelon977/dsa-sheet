@@ -1,12 +1,12 @@
 package com.sumanth.sheet.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@ToString(exclude = "pattern")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Builder
 @NoArgsConstructor
@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class Problem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     private String title;

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 @Component
@@ -21,12 +20,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
     private final String frontendUrl;
+    private final OAuth2UserProcessor oauth2UserProcessor;
 
     public OAuth2LoginSuccessHandler(
             JwtService jwtService,
-            @Value("${FRONTEND_URL:http://localhost:3000}") String frontendUrl) {
+            @Value("${FRONTEND_URL:http://localhost:3000}") String frontendUrl,
+            OAuth2UserProcessor oauth2UserProcessor) {
         this.jwtService = jwtService;
         this.frontendUrl = frontendUrl;
+        this.oauth2UserProcessor = oauth2UserProcessor;
     }
 
     @Override
@@ -34,11 +36,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+        String provider = oauthToken.getAuthorizedClientRegistrationId();
+        OAuth2User oAuth2User = oauthToken.getPrincipal();
+
+        // Try to get processed user from attributes (set by CustomUserService)
         OAuthUser oAuthUser = (OAuthUser) oAuth2User.getAttributes().get("oAuthUser");
 
+        // Fallback: process user now if missing (e.g. from OIDC which doesn't allow
+        // easy attribute injection)
         if (oAuthUser == null) {
-            oAuthUser = extractUserFromPrincipal(authentication);
+            oAuthUser = oauth2UserProcessor.processUser(provider, oAuth2User.getAttributes());
         }
 
         String token = jwtService.generateToken(
@@ -49,37 +57,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 oAuthUser.getEmail());
 
         // Redirect to frontend with token as a query parameter.
-        // The frontend will extract it, store in localStorage, and clear the URL.
         String redirectUrl = frontendUrl + "/auth/callback?token="
                 + URLEncoder.encode(token, StandardCharsets.UTF_8);
 
         response.sendRedirect(redirectUrl);
-    }
-
-    private OAuthUser extractUserFromPrincipal(Authentication authentication) {
-        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
-            String registrationId = oauthToken.getAuthorizedClientRegistrationId();
-            OAuth2User user = oauthToken.getPrincipal();
-            Map<String, Object> attributes = user.getAttributes();
-
-            OAuthUser extracted = new OAuthUser();
-            extracted.setProvider(registrationId);
-
-            if ("google".equals(registrationId)) {
-                extracted.setUsername((String) attributes.getOrDefault("name", "Google User"));
-                extracted.setEmail((String) attributes.getOrDefault("email", ""));
-                extracted.setAvatar((String) attributes.getOrDefault("picture", ""));
-            } else if ("github".equals(registrationId)) {
-                extracted.setUsername((String) attributes.getOrDefault("login", "GitHub User"));
-                extracted.setEmail((String) attributes.getOrDefault("email", ""));
-                extracted.setAvatar((String) attributes.getOrDefault("avatar_url", ""));
-            } else {
-                extracted.setUsername(user.getName());
-                extracted.setEmail("");
-                extracted.setAvatar("");
-            }
-            return extracted;
-        }
-        return new OAuthUser(null, "Unknown", "", "", "unknown");
     }
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user_problem_progress")
+@Table(name = "user_problem_progress", uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "problem_id" }))
 @IdClass(UserProblemProgressId.class)
 public class UserProblemProgress {
 
