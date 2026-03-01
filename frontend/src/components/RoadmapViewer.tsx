@@ -243,7 +243,7 @@ export default function RoadmapViewer() {
                                                                         disabled={isPending}
                                                                         className="glass-pill-active px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400 !bg-emerald-400/10 border-emerald-400/30 disabled:opacity-40"
                                                                     >
-                                                                        {isPending ? 'Working...' : 'Solve'}
+                                                                        {isPending ? 'Working...' : 'Mark as Solved'}
                                                                     </button>
                                                                 )}
                                                             </div>
