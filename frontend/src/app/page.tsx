@@ -49,7 +49,7 @@ export default function Home() {
 
         {/* ── Footer ── */}
         <footer className="relative z-10 w-full border-t border-white/5 py-8 mt-16 text-center text-zinc-600 text-sm">
-          <p>Built with Next.js &amp; Spring Boot</p>
+          <p>Built by Sumanth</p>
         </footer>
       </div>
     </ProgressProvider>
