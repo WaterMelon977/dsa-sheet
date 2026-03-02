@@ -151,28 +151,33 @@ export default function RoadmapViewer() {
                             {!selectedPattern ? (
                                 selectedTopic.patterns.map((pattern, idx) => {
                                     const patternSolved = (pattern.problems || []).filter(p => solvedProblemIds.has(p.id)).length;
-                                    const allSolved = patternSolved === (pattern.problems?.length ?? 0) && patternSolved > 0;
+                                    const totalProblems = pattern.problems?.length || 0;
+                                    const allSolved = patternSolved === totalProblems && totalProblems > 0;
+                                    const percent = totalProblems > 0 ? (patternSolved / totalProblems) * 100 : 0;
 
                                     return (
                                         <div
                                             key={pattern.id}
                                             onClick={() => setSelectedPattern(pattern)}
-                                            className="glass-card glass-shine px-6 py-4 cursor-pointer flex flex-col sm:flex-row justify-between sm:items-center gap-4 group opacity-0 animate-staggered"
+                                            className="glass-card glass-shine px-6 py-4 cursor-pointer flex flex-col sm:flex-row justify-between sm:items-center gap-4 group opacity-0 animate-staggered relative overflow-hidden"
                                             style={{ animationDelay: `${idx * 40}ms` }}
                                         >
-                                            <div className="space-y-1">
+                                            {/* Progress Fill Background */}
+                                            <div
+                                                className="glass-progress-shimmer"
+                                                style={{ width: `${percent}%` }}
+                                            />
+
+                                            <div className="space-y-1 relative z-10">
                                                 <span className={`font-medium text-base leading-snug block transition-colors ${allSolved ? 'text-emerald-300' : 'text-zinc-100 group-hover:text-cyan-300'
                                                     }`}>
                                                     {pattern.name}
                                                 </span>
-                                                {/* <p className="text-xs text-zinc-500 font-light tracking-wide">
-                                                    Technique-driven analysis
-                                                </p> */}
                                             </div>
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-3 relative z-10">
                                                 <span className={`text-xs font-bold px-3 py-1 rounded-full ${allSolved ? 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20' : 'glass-pill text-zinc-400'
                                                     }`}>
-                                                    {patternSolved} / {pattern.problems?.length || 0}
+                                                    {patternSolved} / {totalProblems}
                                                 </span>
                                                 <div className="w-8 h-8 rounded-full glass-pill flex items-center justify-center group-hover:bg-cyan-400/20 group-hover:text-cyan-300 transition-all">
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
@@ -201,7 +206,7 @@ export default function RoadmapViewer() {
                                                     href={problem.leetcodeUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className={`glass-card glass-shine px-5 py-3 block group transition-all opacity-0 animate-staggered ${isSolved ? '!border-emerald-500/30 bg-emerald-500/[0.02]' : ''
+                                                    className={`glass-card glass-shine px-5 py-3 block group transition-all opacity-0 animate-staggered ${isSolved ? 'glass-solved-highlight' : ''
                                                         }`}
                                                     style={{ animationDelay: `${idx * 40}ms` }}
                                                 >

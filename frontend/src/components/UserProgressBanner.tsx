@@ -6,6 +6,11 @@ import { useProgress } from '@/context/ProgressContext';
 
 export default function UserProgressBanner() {
     const { topics, solvedProblemIds, user, isLoading } = useProgress();
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
 
     let totalPatterns = 0;
     let exploredPatterns = 0;
@@ -32,8 +37,9 @@ export default function UserProgressBanner() {
     };
 
     const currentTier = getTier(percentage);
+    const hasToken = mounted && typeof window !== 'undefined' && !!localStorage.getItem('token');
 
-    if (isLoading) {
+    if (!mounted || isLoading || (hasToken && !user)) {
         return (
             <div className="w-full max-w-4xl mx-auto mb-16 animate-pulse px-4">
                 <div className="h-40 glass-card w-full glass-mesh border-white/5" />

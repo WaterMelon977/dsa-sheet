@@ -24,22 +24,10 @@ const API = process.env.NEXT_PUBLIC_API_BASE;
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
-    const [topics, setTopics] = useState<Topic[]>(() => {
-        if (typeof window !== 'undefined') {
-            const cached = localStorage.getItem("roadmap_content_cache");
-            if (cached) {
-                try {
-                    return JSON.parse(cached);
-                } catch (e) {
-                    console.error("Failed to parse cached roadmap content");
-                }
-            }
-        }
-        return STATIC_CONTENT;
-    });
+    const [topics, setTopics] = useState<Topic[]>(STATIC_CONTENT);
     const [solvedProblemIds, setSolvedProblemIds] = useState<Set<number>>(new Set());
     const [user, setUser] = useState<UserProfile | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false); // topics are static, so no initial loading
     const [error, setError] = useState('');
     const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
 
@@ -54,39 +42,36 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         setSolvedProblemIds(new Set());
     }, []);
 
+    // Load cache on mount (Client-only)
+    useEffect(() => {
+        const cached = localStorage.getItem("roadmap_content_cache");
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setTopics(parsed);
+                }
+            } catch (e) {
+                console.error("Failed to parse cached roadmap content");
+            }
+        }
+    }, []);
+
     // 1. Initial Content, Progress & Profile Load
     useEffect(() => {
         const fetchData = async () => {
             const token = localStorage.getItem("token");
 
-            try {
-                const requests: Promise<any>[] = [];
+            // Only fetch content if we don't have enough topics from cache/static
+            // Use a specific check if needed, otherwise rely on the initial fetch logic
+            const shouldFetchContent = topics === STATIC_CONTENT;
 
-                // Only fetch content if we have none (last resort)
-                let contentRequestIndex = -1;
-                if (topics.length === 0) {
-                    contentRequestIndex = requests.length;
-                    requests.push(fetch(`${API}/content`).then(res => res.ok ? res.json() : null));
-                }
-
-                if (token) {
-                    requests.push(fetch(`${API}/api/roadmap/progress`, { headers: { "Authorization": `Bearer ${token}` } }).then(res => res.ok ? res.json() : null));
-                    requests.push(fetch(`${API}/api/me`, { headers: { "Authorization": `Bearer ${token}` } }).then(res => res.ok ? res.json() : null));
-                }
-
-                if (requests.length === 0) {
-                    setIsLoading(false);
-                    return;
-                }
-
-                const results = await Promise.allSettled(requests);
-
-                // Handle Content if requested
-                if (contentRequestIndex !== -1) {
-                    const contentRes = results[contentRequestIndex];
-                    if (contentRes.status === 'fulfilled' && contentRes.value) {
-                        const data = contentRes.value as Topic[];
-                        const sorted = data
+            if (shouldFetchContent) {
+                try {
+                    const res = await fetch(`${API}/content`).catch(() => null);
+                    if (res && res.ok) {
+                        const data = await res.json();
+                        const sorted = (data as Topic[])
                             .sort((a, b) => a.orderIndex - b.orderIndex)
                             .map(t => ({
                                 ...t,
@@ -97,32 +82,43 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
                         setTopics(sorted);
                         localStorage.setItem("roadmap_content_cache", JSON.stringify(sorted));
                     }
+                } catch (err) {
+                    console.error("Failed to fetch content from API, using static/cache", err);
+                } finally {
+                    setIsLoading(false);
                 }
+            } else {
+                // We have topics (static or cache), so we are not loading.
+                setIsLoading(false);
+            }
 
-                if (token) {
-                    const offset = contentRequestIndex !== -1 ? 1 : 0;
-                    // Handle Progress
-                    const progressRes = results[offset];
-                    if (progressRes.status === 'fulfilled' && progressRes.value) {
-                        const data = progressRes.value;
+            // Handle User Progress & Profile in background (non-blocking)
+            if (token) {
+                // Fetch Progress
+                fetch(`${API}/api/roadmap/progress`, { headers: { "Authorization": `Bearer ${token}` } })
+                    .catch(() => null) // Suppress loud fetch failures
+                    .then(res => res && res.ok ? res.json() : null)
+                    .then(data => {
                         if (data && Array.isArray(data.solvedProblemIds)) {
                             setSolvedProblemIds(new Set<number>(data.solvedProblemIds));
                         }
-                    }
+                    })
+                    .catch(err => { /* Silent fallback */ });
 
-                    // Handle Profile
-                    const profileRes = results[offset + 1];
-                    if (profileRes.status === 'fulfilled' && profileRes.value) {
-                        setUser(profileRes.value);
-                    } else if (profileRes.status === 'fulfilled' && !profileRes.value) {
-                        // Check if it was a 401
-                        logout();
-                    }
-                }
-            } catch (err) {
-                console.error("Combined fetch error:", err);
-            } finally {
-                setIsLoading(false);
+                // Fetch Profile
+                fetch(`${API}/api/me`, { headers: { "Authorization": `Bearer ${token}` } })
+                    .catch(() => null) // Suppress loud fetch failures
+                    .then(res => {
+                        if (res && res.status === 401) {
+                            logout();
+                            return null;
+                        }
+                        return res && res.ok ? res.json() : null;
+                    })
+                    .then(data => {
+                        if (data) setUser(data);
+                    })
+                    .catch(err => { /* Silent fallback */ });
             }
         };
 
