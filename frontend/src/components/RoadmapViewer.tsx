@@ -66,39 +66,36 @@ export default function RoadmapViewer() {
                         <React.Fragment key={topic.id}>
                             <div
                                 onClick={() => setSelectedTopic(topic)}
-                                className={`glass-card glass-mesh glass-shine w-full px-8 py-10 cursor-pointer flex flex-col items-center text-center group transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] opacity-0 animate-staggered ${isCompleted ? 'border-amber-500/30' : ''
+                                className={`glass-card glass-mesh glass-shine w-full px-8 py-10 cursor-pointer flex flex-col items-center text-center group transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] opacity-0 animate-staggered relative overflow-hidden ${isCompleted ? 'border-amber-500/30' : ''
                                     }`}
                                 style={{ animationDelay: `${index * 120}ms` }}
                             >
-                                {/* Achievement state */}
-                                {isCompleted && (
-                                    <div className="mb-4 glass-pill px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-400 border-amber-500/20 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
-                                        ★ Phase Mastered ★
+                                {/* Progress Fill Background */}
+                                <div
+                                    className={isCompleted ? "glass-progress-shimmer-amber" : "glass-progress-shimmer"}
+                                    style={{ width: `${progressPercent}%` }}
+                                />
+
+                                <div className="relative z-10 flex flex-col items-center w-full">
+                                    {/* Achievement state */}
+                                    {isCompleted && (
+                                        <div className="mb-4 glass-pill px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-400 border-amber-500/20 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
+                                            ★ Phase Mastered ★
+                                        </div>
+                                    )}
+
+                                    <h3 className={`text-xl md:text-2xl font-serif leading-tight tracking-tight mb-6 transition-all duration-300 ${isCompleted ? 'text-amber-200' : 'text-white/95 group-hover:text-cyan-300'
+                                        }`}>
+                                        {topic.name}
+                                    </h3>
+
+                                    <div className={`text-sm font-medium tabular-nums tracking-wide ${isCompleted ? 'text-amber-500' : 'text-zinc-500'
+                                        }`}>
+                                        <span className={isCompleted ? 'text-amber-300' : 'text-zinc-300'}>{exploredPatterns}</span>
+                                        <span className="mx-1.5 opacity-40">/</span>
+                                        {totalPatterns}
+                                        <span className="ml-2 lowercase font-light opacity-60">patterns</span>
                                     </div>
-                                )}
-
-                                <h3 className={`text-xl md:text-2xl font-serif leading-tight tracking-tight mb-6 transition-all duration-300 ${isCompleted ? 'text-amber-200' : 'text-white/95 group-hover:text-cyan-300'
-                                    }`}>
-                                    {topic.name}
-                                </h3>
-
-                                {/* Crystal Progress Engine */}
-                                <div className="w-full max-w-[340px] mb-4">
-                                    <div className="h-3 w-full rounded-full bg-black/40 border border-white/5 overflow-hidden p-[1.5px] shadow-inner">
-                                        <div
-                                            className={`h-full rounded-full transition-all duration-1000 ease-out ${isCompleted ? 'bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]' : 'premium-gradient-emerald'
-                                                }`}
-                                            style={{ width: `${progressPercent}%` }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className={`text-sm font-medium tabular-nums tracking-wide ${isCompleted ? 'text-amber-500' : 'text-zinc-500'
-                                    }`}>
-                                    <span className={isCompleted ? 'text-amber-300' : 'text-zinc-300'}>{exploredPatterns}</span>
-                                    <span className="mx-1.5 opacity-40">/</span>
-                                    {totalPatterns}
-                                    <span className="ml-2 lowercase font-light opacity-60">patterns</span>
                                 </div>
                             </div>
 
