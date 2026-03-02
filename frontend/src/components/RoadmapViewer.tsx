@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { useProgress, Topic, Pattern } from '@/context/ProgressContext';
+import { useProgress } from '@/context/ProgressContext';
+import { Topic, Pattern } from '@/types/roadmap';
 
 export default function RoadmapViewer() {
     const { topics, solvedProblemIds, isLoading, markSolved, unmarkSolved, pendingIds, error } = useProgress();
